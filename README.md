@@ -1,4 +1,4 @@
-# ie7374
+# IE7374
 GenAI Coursework IE7374
 ---
 
