@@ -20,6 +20,4 @@ spacy>=3.7.0
 
 # Utilities
 tqdm>=4.65.0
-
-tqdm                     # For progress bars during training/inference
-scikit-learn             # For evaluation metrics
+scikit-learn>=1.3.0
