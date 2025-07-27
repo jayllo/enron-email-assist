@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  enron-email-assist:
+    build: 
+      context: .
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    container_name: enron-email-assist
+    ports:
+      - "8888:8888"  # Jupyter Lab
+      - "8000:8000"  # Additional web interface if needed
+    volumes:
+      # Mount source code for development
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      - ./configs:/app/configs
+      - ./utils:/app/utils
+      # Preserve Jupyter settings
+      - jupyter-config:/home/mluser/.jupyter
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=
+      - JUPYTER_PASSWORD=
+    # Enable GPU support if available (uncomment the lines below)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    restart: unless-stopped
+    
+    # Alternative command options:
+    # For running a specific notebook:
+    # command: ["python", "/app/src/train_step4.ipynb"]
+    
+    # For development with auto-reload:
+    # command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--autoreload"]
+
+volumes:
+  jupyter-config:
+
+# For GPU support, you can also use this profile-based approach:
+# profiles:
+#   - gpu
+# Add this to services above:
+# runtime: nvidia
+# environment:
+#   - NVIDIA_VISIBLE_DEVICES=all 
