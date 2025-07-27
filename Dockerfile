@@ -41,8 +41,8 @@ RUN pip install --no-cache-dir \
 COPY . .
 
 # Make download scripts executable
-RUN chmod +x /app/download_enron_data.sh && \
-    chmod +x /app/download_dataset.py
+#RUN chmod +x /app/download_enron_data.sh && \
+#    chmod +x /app/download_dataset.py
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/outputs /app/configs /app/utils
@@ -61,7 +61,8 @@ RUN useradd -m -u 1000 mluser && \
 USER mluser
 
 # Download Enron dataset during build (CMU source - no authentication required)
-RUN /app/download_enron_data.sh
+#Update data source to use Kaggle
+#RUN /app/download_enron_data.sh
 
 # Default command to start Jupyter Lab
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''", "--NotebookApp.password=''"] 

@@ -14,8 +14,8 @@ from pathlib import Path
 
 def run_download_script():
     """Run the bash download script."""
-    print("🚀 Starting Enron dataset download...")
-    print("📝 This may take several minutes depending on your internet connection.")
+    print("Starting Enron dataset download...")
+    print("This may take several minutes depending on your internet connection.")
     
     # Path to the download script
     script_path = "/app/download_enron_data.sh"
@@ -69,11 +69,11 @@ def check_dataset_status():
 def show_dataset_info():
     """Show information about the Enron dataset."""
     print("\nAbout the Enron Email Dataset:")
-    print("• Source: Carnegie Mellon University")
-    print("• Size: ~1.7GB compressed")
-    print("• Contains: ~500,000 emails from 150 users")
-    print("• Format: Individual email files in directory structure")
-    print("• Official URL: https://www.cs.cmu.edu/~enron/")
+    print("Source: Carnegie Mellon University")
+    print(" Size: ~1.7GB compressed")
+    print("Contains: ~500,000 emails from 150 users")
+    print("Format: Individual email files in directory structure")
+    print("Official URL: https://www.cs.cmu.edu/~enron/")
 
 
 def main():
