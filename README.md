@@ -1,4 +1,4 @@
-# ie7374
+# IE7374
 GenAI Coursework IE7374
 ---
 
@@ -20,11 +20,13 @@ Our project currently consists of notebooks placed in /src
 1. Right now, we have to manually download the EnronData set due to size.
 Enron Dataset - https://www.kaggle.com/datasets/wcukierski/enron-email-dataset
 
-2. Load it into drive/local
-3. Run proprocessing
-4. Run the data prep scripts in sequence (labeled step1-3)
-5. Run training
-6. Run evaluate
+Update 7/26: We found the Enron dataset online and can now directly load from CMU: https://www.cs.cmu.edu/~enron/ 
+
+3. Load it into drive/local
+4. Run proprocessing
+5. Run the data prep scripts in sequence (labeled step1-3)
+6. Run training
+7. Run evaluate
 
 ---
 
