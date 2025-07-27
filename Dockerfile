@@ -37,15 +37,22 @@ RUN pip install --no-cache-dir \
     seaborn \
     plotly
 
-# Copy project files
+# Create a non-root user for security
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN if ! getent group ${GROUP_ID} >/dev/null; then groupadd -g ${GROUP_ID} mlgroup; fi && \
+    useradd -m -u ${USER_ID} -g ${GROUP_ID} mluser
+
+# Copy project files and set ownership
 COPY . .
+RUN chown -R ${USER_ID}:${GROUP_ID} /app
 
-# Make download scripts executable
-#RUN chmod +x /app/download_enron_data.sh && \
-#    chmod +x /app/download_dataset.py
+# Create necessary directories with proper ownership
+RUN mkdir -p /app/data /app/outputs /app/configs /app/utils && \
+    chown -R ${USER_ID}:${GROUP_ID} /app
 
-# Create necessary directories
-RUN mkdir -p /app/data /app/outputs /app/configs /app/utils
+# Switch to non-root user
+USER mluser
 
 # Set up Jupyter configuration
 RUN jupyter lab --generate-config
@@ -54,15 +61,5 @@ RUN jupyter lab --generate-config
 EXPOSE 8888
 EXPOSE 8000
 
-# Create a non-root user for security
-RUN useradd -m -u 1000 mluser && \
-    chown -R mluser:mluser /app
-
-USER mluser
-
-# Download Enron dataset during build (CMU source - no authentication required)
-#Update data source to use Kaggle
-#RUN /app/download_enron_data.sh
-
-# Default command to start Jupyter Lab
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''", "--NotebookApp.password=''"] 
+# Default command to start Jupyter Lab with modern configuration
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--IdentityProvider.token=''", "--ServerApp.password=''", "--ServerApp.allow_origin='*'"] 

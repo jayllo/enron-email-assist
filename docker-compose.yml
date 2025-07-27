@@ -2,7 +2,11 @@ version: '3.8'
 
 services:
   enron-email-assist:
-    build: .
+    build: 
+      context: .
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
     container_name: enron-email-assist
     ports:
       - "8888:8888"  # Jupyter Lab
