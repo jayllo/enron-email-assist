@@ -2,7 +2,11 @@
 GenAI Coursework IE7374
 ---
 
+To install the project, clone this repo and run docker compose up.
+The docker will install all necessary requirements & start Jupyter notebook at http://localhost:8888.
+We are in the process of transitioning off Notebooks to .py files.
 
+---
 
 Our project currently consists of notebooks placed in /src 
 - Prprocessing 
