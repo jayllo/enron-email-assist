@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Aug  6 19:17:57 2025
-
-@author: annas
-"""
 
 from multiprocessing import Pool
 import pandas as pd
@@ -88,4 +83,4 @@ if __name__ == '__main__':
     val_df.to_csv("enron_cleaned_val.csv", index=False)
     test_df.to_csv("enron_cleaned_test.csv", index=False)
 
-    print("✅ Done. Saved cleaned files with columns: email_id, tag, subject, email_text.")
+    print("Done. Saved cleaned files with columns: email_id, tag, subject, email_text.")
