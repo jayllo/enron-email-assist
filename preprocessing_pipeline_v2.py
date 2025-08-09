@@ -180,26 +180,33 @@ def process_email_row(row):
     ]
 
 # ------------------------
-# 8. Main Execution
+# 8. Main Pipeline Function
 # ------------------------
-def main():
-    #df = load_dataset('emails.csv')
-    df = load_dataset('data/sample_raw_dataset.csv')
+def preprocess_pipeline_v2(input_csv_path, output_train_path="data/v7_sample_train.csv"):
+    """
+    Complete preprocessing pipeline for Enron email data.
+    
+    Args:
+        input_csv_path (str): Path to the raw email CSV file
+        output_train_path (str): Path to save the processed training data
+    
+    Returns:
+        str: Path to the processed CSV file
+    """
+    df = load_dataset(input_csv_path)
     df = apply_metadata_split(df)
     df = filter_by_length(df)
-
-    with Pool() as pool:
-        results = pool.map(process_email_row, df.to_dict('records'))
-
+    
+    # Process emails - use single-threaded to avoid multiprocessing issues
+    results = []
+    for row in df.to_dict('records'):
+        results.append(process_email_row(row))
+    
     df_clean = pd.DataFrame([item for sublist in results for item in sublist])
     df_final = df_clean[['email_id', 'tag', 'subject', 'email_text']]
-
-    train_df, temp_df = train_test_split(df_final, test_size=0.2, random_state=42)
-    val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
-
-    train_df.to_csv("enron_train.csv", index=False)
-    val_df.to_csv("enron_val.csv", index=False)
-    test_df.to_csv("enron_test.csv", index=False)
+    df_final.to_csv(output_train_path, index=False)
+    
+    return output_train_path
 
 if __name__ == '__main__':
-    main()
+    preprocess_pipeline_v2('data/sample_raw_dataset.csv', 'data/v7_sample_train.csv')

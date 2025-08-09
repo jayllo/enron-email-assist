@@ -13,7 +13,13 @@ from peft import LoraConfig, get_peft_model, TaskType
 
 import pandas as pd
 
-input_csv = pd.read_csv('data/v7_sample_train.csv')
+from preprocessing_pipeline_v2 import preprocess_pipeline_v2
+
+# Run preprocessing pipeline first
+processed_path = preprocess_pipeline_v2('data/sample_raw_dataset.csv', 'data/v7_sample_train.csv')
+
+# Load the processed data
+input_csv = pd.read_csv(processed_path)
 input_csv.head(2)
 
 # data_prep_step1.py
@@ -37,57 +43,45 @@ def extract_tag_index(tag: str) -> int:
         return int(m.group(1))
     return 9999
 
-def prepare_pairs(input_csv: str, output_jsonl: str):
-    # 1) Load the CSV, skipping malformed lines
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        df = pd.read_csv(
-            input_csv,
-            engine='python',
-            on_bad_lines='skip'
-        )
-
-    # 2) Ensure there's a 'subject' column (blank for now)
-    if 'subject' not in df.columns:
-        df['subject'] = ""
-
+def prepare_pairs(input_df, output_jsonl: str):
+    """
+    Prepare training pairs from preprocessed email data.
+    Now uses the output from preprocess_pipeline_v2 which has columns:
+    ['email_id', 'tag', 'subject', 'email_text']
+    """
     examples = []
 
-    # 3) Process each thread
-    for thread_id, group in df.groupby("message_id", sort=False):
+    # Process each thread
+    for email_id, group in input_df.groupby("email_id", sort=False):
         grp = group.copy()
-        # 4) Sort messages by tag index
+        # Sort messages by tag index
         grp['idx'] = grp['tag'].apply(extract_tag_index)
         grp = grp.sort_values('idx')
 
-        msgs = grp['anon_message'].tolist()
-        # 5a) Grab the subject from the original message row
+        msgs = grp['email_text'].tolist()  # Updated column name
+        # Grab the subject from the original message row
         subject_rows = grp.loc[grp['idx'] == 0, 'subject']
         subject = subject_rows.iloc[0] if not subject_rows.empty else ""
 
-        # 5b) For each reply position i (i >= 1), build one example
+        # For each reply position i (i >= 1), build one example
         for i in range(1, len(msgs)):
             examples.append({
                 "thread": " ".join(msgs[:i]),  # all messages before reply i
-                "subject": subject,            # blank or to-be-filled later
+                "subject": subject,            # subject from preprocessing
                 "email": msgs[i-1],            # immediate predecessor
                 "reply": msgs[i],              # this reply
                 "tone": "[formal]"             # placeholder tone
             })
 
-    # 6) Write examples to JSONL
+    # Write examples to JSONL
     with open(output_jsonl, 'w', encoding='utf-8') as fout:
         for ex in examples:
             fout.write(json.dumps(ex, ensure_ascii=False) + "\n")
 
-if __name__ == "__main__":
-    input_csv    = "data/v7_sample_train.csv"
-    output_jsonl = "data/sample_enron_pairs.jsonl"
-
-    print(f"Reading {input_csv}…")
-    prepare_pairs(input_csv, output_jsonl)
-    count = sum(1 for _ in open(output_jsonl, encoding='utf-8'))
-    print(f"Wrote {count} examples to {output_jsonl}.")
+output_jsonl = "data/sample_enron_pairs.jsonl"
+prepare_pairs(input_csv, output_jsonl)
+count = sum(1 for _ in open(output_jsonl, encoding='utf-8'))
+print(f"Wrote {count} examples to {output_jsonl}")
 
 # data_prep_step2.py
 
@@ -125,14 +119,12 @@ def build_prompts(input_jsonl: str,
                 json.dumps({"text": prompt_subj}, ensure_ascii=False) + "\n"
             )
 
-if __name__ == "__main__":
-    input_jsonl    = "data/sample_enron_pairs.jsonl"
-    output_full    = "data/sample_enron_prompts_full.jsonl"
-    output_subject = "data/sample_enron_prompts_subject.jsonl"
+input_jsonl    = "data/sample_enron_pairs.jsonl"
+output_full    = "data/sample_enron_prompts_full.jsonl"
+output_subject = "data/sample_enron_prompts_subject.jsonl"
 
-    print("Building prompts…")
-    build_prompts(input_jsonl, output_full, output_subject)
-    print("Done.")
+build_prompts(input_jsonl, output_full, output_subject)
+print("Built prompts")
 
 # data_prep_step3.py
 
@@ -178,22 +170,14 @@ def tokenize_and_save(input_jsonl: str, output_dir: str, max_len: int = 512):
     tokenized.save_to_disk(output_dir)
     print(f"> Saved {len(tokenized)} examples to '{output_dir}'")
 
-if __name__ == "__main__":
-    # Filepaths from Step 2
-    full_in  = "data/sample_enron_prompts_full.jsonl"
-    subj_in  = "data/sample_enron_prompts_subject.jsonl"
+full_in  = "data/sample_enron_prompts_full.jsonl"
+subj_in  = "data/sample_enron_prompts_subject.jsonl"
+full_out = "data/tokenized_full"
+subj_out = "data/tokenized_subject"
 
-    # Output folders for Step 4’s training
-    full_out = "tokenized_full"
-    subj_out = "tokenized_subject"
-
-    print("💬 Tokenizing full‐thread prompts …")
-    tokenize_and_save(full_in, full_out)
-
-    print("💬 Tokenizing subject+last‐email prompts …")
-    tokenize_and_save(subj_in, subj_out)
-
-    print("✅ Step 3 complete.")
+tokenize_and_save(full_in, full_out)
+tokenize_and_save(subj_in, subj_out)
+print("Tokenization complete")
 
 #!/usr/bin/env python
 # train_step4_v2.py
@@ -270,14 +254,13 @@ def fine_tune(tokenized_dir, output_dir):
     trainer.save_model(output_dir)
     logger.info(f"✔ Done {output_dir}\n")
 
-if __name__ == "__main__":
-    pairs = [
-        ("tokenized_full",    "outputs/gpt2_lora_full"),
-        ("tokenized_subject", "outputs/gpt2_lora_subject"),
-    ]
-    for tok_dir, out_dir in pairs:
-        os.makedirs(out_dir, exist_ok=True)
-        fine_tune(tok_dir, out_dir)
+pairs = [
+    ("data/tokenized_full",    "outputs/gpt2_lora_full"),
+    ("data/tokenized_subject", "outputs/gpt2_lora_subject"),
+]
+for tok_dir, out_dir in pairs:
+    os.makedirs(out_dir, exist_ok=True)
+    fine_tune(tok_dir, out_dir)
 
 
 

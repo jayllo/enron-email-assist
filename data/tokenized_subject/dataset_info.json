@@ -1,0 +1,55 @@
+{
+  "builder_name": "json",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "json",
+  "dataset_size": 62846,
+  "description": "",
+  "download_checksums": {
+    "/app/workspace/data/sample_enron_prompts_subject.jsonl": {
+      "num_bytes": 64523,
+      "checksum": null
+    }
+  },
+  "download_size": 64523,
+  "features": {
+    "input_ids": {
+      "feature": {
+        "dtype": "int32",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "attention_mask": {
+      "feature": {
+        "dtype": "int8",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "labels": {
+      "feature": {
+        "dtype": "int64",
+        "_type": "Value"
+      },
+      "_type": "List"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 127369,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 62846,
+      "num_examples": 88,
+      "dataset_name": "json"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}
