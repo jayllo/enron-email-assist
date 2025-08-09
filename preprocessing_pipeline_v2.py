@@ -184,7 +184,7 @@ def process_email_row(row):
 # ------------------------
 def main():
     #df = load_dataset('emails.csv')
-    df = load_dataset('sample_raw_dataset.csv')
+    df = load_dataset('data/sample_raw_dataset.csv')
     df = apply_metadata_split(df)
     df = filter_by_length(df)
 

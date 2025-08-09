@@ -16,7 +16,10 @@ rouge-score>=0.1.2
 bert-score>=0.3.13
 
 # NLP preprocessing and named entity recognition
-spacy>=3.7.0
+spacy>=3.7.1
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
+
+
 
 # Utilities
 tqdm>=4.65.0
