@@ -2,32 +2,24 @@
 GenAI Coursework IE7374
 ---
 
-
-
-Our project currently consists of notebooks placed in /src 
-- Prprocessing 
-  - 1_preprocessing_v7 which cleans the enron data
-- Model training and evaluation files
-  - data_prep_step1
-  - data_prep_step2
-  - data_prep_step3
-  - train_step4
-  - evaluate_step5
+Our project currently consists of a GPT2 trained and tuned with LORA.
+The launchpoint for this is from sample_model_runner.
 ---
 
 **Setup**
 
-1. Right now, we have to manually download the EnronData set due to size.
-Enron Dataset - https://www.kaggle.com/datasets/wcukierski/enron-email-dataset
+1. For demo, you can simply clone the repo 
+   git clone
+2. docker compose up model-runner
+   - which will run the sample_model_runner against a sample data set.
 
-Update 7/26: We found the Enron dataset online and can now directly load from CMU: https://www.cs.cmu.edu/~enron/ 
+To use the full Enron Dataset - https://www.kaggle.com/datasets/wcukierski/enron-email-dataset
 
-3. Load it into drive/local
-4. Run proprocessing
-5. Run the data prep scripts in sequence (labeled step1-3)
-6. Run training
-7. Run evaluate
-
+You have to
+1. git clone our repo
+2. download the Enron email data set
+3. Replace data/sample_raw_dataset.csv with the enron email dataset
+4. Run sample_model_runner
 ---
 
 **Model Selection & Training**
